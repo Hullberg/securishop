@@ -1,13 +1,21 @@
-notes.txt
+Everything in the folder should be in MAMP/htdocs, except 'db'-folder, which should be in MAMP/db/mysql/SecuriShop
+
+- - - - - -
+
+TODO:
+* Webshop-functionality
+* Toggle buttons or checkboxes, for global variables to work in all forms
+* More OWASP-stuff?
+
+- - - - - -
 
 MAMP, open WebStart Page for phpMyAdmin
 Use SHA-512 for passwords, passwords can be 128 characters long.
 
 
-Everything in the folder should be in MAMP/htdocs, except 'db'-folder, which should be in MAMP/db/mysql/SecuriShop
+- - - - - -
 
-
-Database:
+Below are examples of the two tables:
 
 Users
 CREATE TABLE `user` ( `id` INT(4) NOT NULL , `username` VARCHAR(20) NOT NULL , `password` VARCHAR(128) NOT NULL , `hashpass` VARCHAR(128) NOT NULL , `cred` INT(2) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB DEFAULT CHARSET=latin1;
@@ -23,3 +31,6 @@ CREATE TABLE `items` (
   `imgurl` varchar(255) NOT NULL,
   `price` decimal(5,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `items` (`id`, `name`, `imgurl`, `price`) VALUES
+(0, 'Hemming Slimming', 'http://gloimg.twinkledeals.com/td/2015/201507/source-img/1436466658259-P-2819655.jpg?20141203001', 149.00);
