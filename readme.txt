@@ -1,0 +1,25 @@
+notes.txt
+
+MAMP, open WebStart Page for phpMyAdmin
+Use SHA-512 for passwords, passwords can be 128 characters long.
+
+
+Everything in the folder should be in MAMP/htdocs, except 'db'-folder, which should be in MAMP/db/mysql/SecuriShop
+
+
+Database:
+
+Users
+CREATE TABLE `user` ( `id` INT(4) NOT NULL , `username` VARCHAR(20) NOT NULL , `password` VARCHAR(128) NOT NULL , `hashpass` VARCHAR(128) NOT NULL , `cred` INT(2) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `user` (`id`, `username`, `password`, `hashpass`, `cred`) VALUES
+(0,'admin','adminpassword,'eae889ceda1452b34555b2b52b9f05d28a1e8ed8d5dc8c62362b90ee49746af1b99bf53cb3e58323d29c1dcc5b1203e45f824d10d87b1a63b9d6eec59a2f6740', 0);
+
+
+Articles
+CREATE TABLE `items` (
+  `id` int(4) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `imgurl` varchar(255) NOT NULL,
+  `price` decimal(5,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
