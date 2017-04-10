@@ -4,13 +4,12 @@ if (isset($_COOKIE['username'])) {
 		header('Location: welcome.php');
 		exit;
 }
-
-
+session_start();
 $name = $_POST['username'];
 $pass = $_POST['password'];
 $time = time();
 
-
+// Login
 if(isset($name) && isset($pass)) {
 	$hashpass = hash('sha512',$pass);
 	try {
@@ -55,6 +54,27 @@ if(isset($name) && isset($pass)) {
 	    die();
 	}
 }
+
+
+// Add to cart
+$prod_id = $_POST['product_id'];
+$prod_name = $_POST['product_name'];
+$prod_price = $_POST['product_price'];
+if (isset($prod_id) && isset($prod_name) && isset($prod_price)) {
+	
+	$new_product['prod_id'] = $prod_id;
+	$new_product['prod_name'] = $prod_name;
+	$new_product['price'] = $prod_price;
+
+	// If already in cart, add one more
+	if (isset($_SESSION['cart_products'][$new_product['prod_id']])) {
+		$_SESSION['cart_products'][$new_product['prod_id']][amount] = $_SESSION['cart_products'][$new_product['prod_id']][amount] + 1; 
+	}
+	if (!isset($_SESSION['cart_products'][$new_product['prod_id']])) {
+		$new_product['amount'] = 1;
+	}
+	$_SESSION['cart_products'][$new_product['prod_id']] = $new_product;
+}
 ?>
 
 
@@ -81,7 +101,7 @@ if(isset($name) && isset($pass)) {
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="brand" href="/">SecuriShop</a>
+				<a class="brand" href="/SecuriShop/index.php">SecuriShop</a>
 
 				<div class="nav-collapse collapse">
 <!--
@@ -131,17 +151,40 @@ if(isset($name) && isset($pass)) {
 				<div class="well">
 
 					<div class="dropdown">
+						<?php
+							if (isset($_SESSION['cart_products']) && count($_SESSION['cart_products']) > 0) {
+						?>
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="icon-shopping-cart"></i>
-							4 item - $999.99
-							<b class="caret"></b></a>
+							<?php
+							echo count($_SESSION['cart_products']).' items - '.$_SESSION['total_sum'].' SEK';
+							?>
+							<b class="caret"></b>
 						</a>
 						<div class="dropdown-menu well" role="menu" aria-labelledby="dLabel">
-							<p>Item x 1 <span class="pull-right">$333.33</span></p>
-							<p>Item x 1 <span class="pull-right">$333.33</span></p>
-							<p>Item x 1 <span class="pull-right">$333.33</span></p>
-							<a href="#" class="btn btn-primary">Checkout</a>
+							<?php
+					
+							foreach($_SESSION['cart_products'] as $prod) {
+								echo "<p>".$prod[prod_name]." x ".$prod[amount]." <span class='pull-right'>".$prod[price]."</span></p>";
+							}
+							echo '<a href="#" class="btn btn-primary">Checkout</a>'
+							?>
 						</div>
+						<?php
+							}
+							if (!isset($_SESSION['cart_products']) && count($_SESSION['cart_products']) < 1) {
+						?>
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+								<i class="icon-shopping-cart"></i>
+								0 items
+								<b class="caret"></b>
+							</a>
+							<div class="dropdown-menu well" role="menu" aria-labelledby="dLabel">
+								<p>Cart is empty</p>
+							</div>
+						<?php
+							}
+						?>
 					</div>
 
 				</div>
@@ -218,9 +261,16 @@ if(isset($name) && isset($pass)) {
 								print "<div class='thumbnail'>";
 								print "<img src='" . $row['imgurl'] . "' alt='' style='height:200px;width:100px'>";
 								print "<div class='caption'>";
+								print "<h1>" . $row['id'] . "</h1>";
 								print "<h4>" . $row['name'] . "</h4>";
 								print "<p>" . $row['price'] . "</p>";
-								print "<a class='btn btn-success' href='#'>Add to Cart</a>";
+								print "<form method='POST' action='index.php'>";
+								print "<input type='hidden' name='product_id' value='".$row['id']."' />";
+								print "<input type='hidden' name='product_name' value='".$row['name']."' />";
+								print "<input type='hidden' name='product_price' value='".$row['price']."' />";
+								print "<input type='hidden' name='type' value='add_product' />";
+								print "<button class='btn btn-success'>Add to Cart</button>";
+								print "</form>";
 								print "</div>";
 								print "</div>";
 								print "</li>";

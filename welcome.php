@@ -32,7 +32,7 @@ echo $_COOKIE['username'] . " cookie!";
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="brand" href="/">SecuriShop</a>
+				<a class="brand" href="/SecuriShop/welcome.php">SecuriShop</a>
 
 				<div class="nav-collapse collapse">
 

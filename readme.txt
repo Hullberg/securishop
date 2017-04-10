@@ -34,3 +34,12 @@ CREATE TABLE `items` (
 
 INSERT INTO `items` (`id`, `name`, `imgurl`, `price`) VALUES
 (0, 'Hemming Slimming', 'http://gloimg.twinkledeals.com/td/2015/201507/source-img/1436466658259-P-2819655.jpg?20141203001', 149.00);
+
+- - - - - -
+
+Cart structure:
+Array consisting of product name + price.
+$_SESSION['cart_products'] have
+[prod_id]
+[prod_name]
+[price]
