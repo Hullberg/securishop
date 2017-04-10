@@ -1,9 +1,18 @@
 <?php
-
-if (isset($_COOKIE['username'])) {
+/*if (isset($_SESSION['username'])) {
+	$_COOKIE['username'] = $_SESSION['username'];
+}*/
+/*if (isset($_COOKIE['username'])) {
 		header('Location: welcome.php');
 		exit;
-}
+}*/
+
+// Checkout
+/*if (isset($_POST['checkoutpurchase'])) {
+	header('Location: checkout.php');
+	exit;
+}*/
+
 session_start();
 $name = $_POST['username'];
 $pass = $_POST['password'];
@@ -55,26 +64,46 @@ if(isset($name) && isset($pass)) {
 	}
 }
 
+// Logout
+if (isset($_POST['logoutuglysolution'])) {
+	
+	//setcookie('username', $_SESSION['username'], time()-1);
+	echo $_SESSION['username'];
+	echo "<script>console.log('bajs')</script>";
+	unset($_SESSION['username']);
+	header('Refresh:0');
+}
+
 
 // Add to cart
 $prod_id = $_POST['product_id'];
 $prod_name = $_POST['product_name'];
 $prod_price = $_POST['product_price'];
-if (isset($prod_id) && isset($prod_name) && isset($prod_price)) {
+if (isset($_POST['product_id']) && isset($_POST['product_name']) && isset($_POST['product_price'])) {
 	
 	$new_product['prod_id'] = $prod_id;
 	$new_product['prod_name'] = $prod_name;
 	$new_product['price'] = $prod_price;
+	//$new_product['amount'] = 1;
 
 	// If already in cart, add one more
 	if (isset($_SESSION['cart_products'][$new_product['prod_id']])) {
-		$_SESSION['cart_products'][$new_product['prod_id']][amount] = $_SESSION['cart_products'][$new_product['prod_id']][amount] + 1; 
+		$new_product['amount'] = $_SESSION['cart_products'][$new_product['prod_id']][amount] + 1;
 	}
+
 	if (!isset($_SESSION['cart_products'][$new_product['prod_id']])) {
 		$new_product['amount'] = 1;
+		//echo $new_product[amount];
 	}
 	$_SESSION['cart_products'][$new_product['prod_id']] = $new_product;
 }
+
+// Clear cart
+if (isset($_POST['clearcart'])) {
+	unset($_SESSION['cart_products']);
+}
+
+
 ?>
 
 
@@ -157,7 +186,14 @@ if (isset($prod_id) && isset($prod_name) && isset($prod_price)) {
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="icon-shopping-cart"></i>
 							<?php
-							echo count($_SESSION['cart_products']).' items - '.$_SESSION['total_sum'].' SEK';
+							$total_sum = 0;
+							$tempcount = 0;
+							foreach ($_SESSION['cart_products'] as $prod) {
+								$total_sum = $total_sum + $prod[price]*$prod[amount];
+								$tempcount = $tempcount + $prod[amount];
+							}
+							// count($_SESSION['cart_products'])
+							echo $tempcount.' items - '.$total_sum.' SEK';
 							?>
 							<b class="caret"></b>
 						</a>
@@ -167,7 +203,16 @@ if (isset($prod_id) && isset($prod_name) && isset($prod_price)) {
 							foreach($_SESSION['cart_products'] as $prod) {
 								echo "<p>".$prod[prod_name]." x ".$prod[amount]." <span class='pull-right'>".$prod[price]."</span></p>";
 							}
-							echo '<a href="#" class="btn btn-primary">Checkout</a>'
+							//echo "<a class='btn btn-primary'>Checkout</a>";
+							echo "<form method='post' action='checkout.php'>";
+							echo "<input type='hidden' name='checkoutpurchase' value='".$_SESSION['cart_products']."'></input>";
+							echo "<button class='btn btn-success'>Checkout</button>";
+							echo "</form>";
+							echo "<form method='post' action='index.php'>";
+							echo "<input type='hidden' name='clearcart'></input>";
+							echo "<button class='btn btn-success'>Clear Cart</button>";
+							echo "</form>";
+
 							?>
 						</div>
 						<?php
@@ -224,11 +269,18 @@ if (isset($prod_id) && isset($prod_name) && isset($prod_price)) {
 							<button type="submit" class="btn btn-success" value="Login" id="submit">Login</button>
 						</div>
 						<br />
-						<!--<a href="#">register</a>&nbsp;&#124;&nbsp;<a href="#">forgot password?</a>-->
 					</form>
 					<?php 
 
 						}
+						if (isset($_COOKIE['username'])) {
+					
+						echo "<form class='form login-form' id='form_id' method='post' name='loginform' action='logout.php'>";
+						echo "<h3>Logged in as: ".$_COOKIE['username']."</h3>";
+						echo "<input type='hidden' name='logoutuglysolution' value='logout'></input>";
+						echo "<input type='submit' class='btn btn-success' value='Log out' id='submit'></input>";
+						echo "</form>";
+					}
 					?>
 				</div>
 			</div>
@@ -261,7 +313,7 @@ if (isset($prod_id) && isset($prod_name) && isset($prod_price)) {
 								print "<div class='thumbnail'>";
 								print "<img src='" . $row['imgurl'] . "' alt='' style='height:200px;width:100px'>";
 								print "<div class='caption'>";
-								print "<h1>" . $row['id'] . "</h1>";
+								//print "<h1>" . $row['id'] . "</h1>";
 								print "<h4>" . $row['name'] . "</h4>";
 								print "<p>" . $row['price'] . "</p>";
 								print "<form method='POST' action='index.php'>";
