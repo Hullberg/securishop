@@ -2,6 +2,27 @@
 if (!isset($_SESSION)) {
 	session_start();
 }
+
+// Security measures
+if (!isset($_SESSION['sql'])) {
+	$_SESSION['sql'] = 'OFF';
+	header('Refresh:0');
+}
+
+/*$sqll = $_POST['sqlbutton'];
+if ($sqll == "ON") {
+	echo "test";
+}
+if ($sqll == "OFF") {
+	echo "tost";
+}*/
+if (!isset($_POST['sqlbutton'])) {
+	echo "button not pushed";
+}
+if (isset($_POST['sqlbutton'])) {
+	echo "button pushed";
+}
+
 $name = $_POST['username'];
 $pass = $_POST['password'];
 $time = time();
@@ -18,7 +39,6 @@ if(isset($name) && isset($pass)) {
 		if (!isset($_POST['sqler'])) {
 			$sql = "SELECT * FROM user WHERE username='$name' AND password='$pass'";
 		}
-
 		
 		if (isset($_POST['sqler'])) {
 			$temp1 = htmlspecialchars($name);
@@ -28,13 +48,13 @@ if(isset($name) && isset($pass)) {
 		foreach ($db->query($sql) as $rows) {
 			if ( $rows['username'] == $name ) {
 				if ( isset($_POST['hasher']) && $rows['hashpass'] == $hashpass ) {
-					setcookie('username', $name, $time + 3600*24*5);
+					if (isset($_POST['rememberme'])) {setcookie('username', $name, $time + 3600*24*5);}
 					session_start();
 					$_SESSION['username'] = $name;
 					header('Refresh:0');
 				}
 				if ( !isset($_POST['hasher']) && $rows['password'] == $pass ) {
-					setcookie('username', $name, $time + 3600*24*5);
+					if (isset($_POST['rememberme'])) {setcookie('username', $name, $time + 3600*24*5);}
 					session_start();
 					$_SESSION['username'] = $name;
 					header('Refresh:0');
@@ -52,17 +72,6 @@ if(isset($name) && isset($pass)) {
 	}
 }
 
-// Logout
-if (isset($_POST['logoutuglysolution'])) {
-	
-	//setcookie('username', $_SESSION['username'], time()-1);
-	echo $_SESSION['username'];
-	echo "<script>console.log('bajs')</script>";
-	unset($_SESSION['username']);
-	header('Refresh:0');
-}
-
-
 // Add to cart
 $prod_id = $_POST['product_id'];
 $prod_name = $_POST['product_name'];
@@ -72,7 +81,6 @@ if (isset($_POST['product_id']) && isset($_POST['product_name']) && isset($_POST
 	$new_product['prod_id'] = $prod_id;
 	$new_product['prod_name'] = $prod_name;
 	$new_product['price'] = $prod_price;
-	//$new_product['amount'] = 1;
 
 	// If already in cart, add one more
 	if (isset($_SESSION['cart_products'][$new_product['prod_id']])) {
@@ -81,7 +89,6 @@ if (isset($_POST['product_id']) && isset($_POST['product_name']) && isset($_POST
 
 	if (!isset($_SESSION['cart_products'][$new_product['prod_id']])) {
 		$new_product['amount'] = 1;
-		//echo $new_product[amount];
 	}
 	$_SESSION['cart_products'][$new_product['prod_id']] = $new_product;
 }
@@ -90,10 +97,7 @@ if (isset($_POST['product_id']) && isset($_POST['product_name']) && isset($_POST
 if (isset($_POST['clearcart'])) {
 	unset($_SESSION['cart_products']);
 }
-
-
 ?>
-
 
 <html>
 <head>
@@ -105,8 +109,6 @@ if (isset($_POST['clearcart'])) {
 <link rel="stylesheet" href="./css/font-awesome/css/font-awesome.min.css" />
 
 </head>
-
-
 
 <body>
 
@@ -121,11 +123,6 @@ if (isset($_POST['clearcart'])) {
 				<a class="brand" href="/SecuriShop/index.php">SecuriShop</a>
 
 				<div class="nav-collapse collapse">
-<!--
-<form action = "index.php" method = "post">
-	<input type="text" name="searchphrase">
-	<input type="submit" value="Search">
-</form>-->
 
 					<form class="navbar-form form-search pull-right" method="post" action="index.php">
 						<input id="Search" name="searchphrase" type="text" class="input-medium search-query">
@@ -155,13 +152,19 @@ if (isset($_POST['clearcart'])) {
 						  </div>
 						</div>
 
-						<br><br>
-						SQL Injection
-						<input type="button" id="m1" value="OFF" style="color:blue; float:right" onclick="toggle(this, 'm1');"> <br><br>
-						XSS
-						<input type="button" id="m2" value="OFF" style="color:blue; float:right" onclick="toggle(this, 'm2');"> <br><br>
-						Encryption
-						<input type="button" id="m3" value="OFF" style="color:blue; float:right" onclick="toggle(this, 'm3');">
+						<?php
+						echo "<br><br>";
+						echo "SQL Injection";
+						echo "<form method='post' action='index.php'>";
+						echo "<input type='hidden' name='sqlbutton'></input>";
+						echo "<button style='color:blue; float:right'>".$_SESSION['sql']."</button>";
+						//echo "<input type='submit' value='".$_SESSION['sql']."' style='color:blue; float:right'>";
+						echo "</form>";
+						echo "XSS";
+						echo "<input type='button' id='m2' value='OFF' style='color:blue; float:right'> <br><br>";
+						echo "Encryption";
+						echo "<input type='button' id='m3' value='OFF' style='color:blue; float:right'>";
+						?>
 					</form>
 				</div>
 
@@ -173,7 +176,7 @@ if (isset($_POST['clearcart'])) {
 						?>
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="icon-shopping-cart"></i>
-							<?php
+							<?php // Count amount of items in cart, and the sum of all prices.
 							$total_sum = 0;
 							$tempcount = 0;
 							foreach ($_SESSION['cart_products'] as $prod) {
@@ -186,7 +189,7 @@ if (isset($_POST['clearcart'])) {
 							<b class="caret"></b>
 						</a>
 						<div class="dropdown-menu well" role="menu" aria-labelledby="dLabel">
-							<?php
+							<?php // Populate cart with items previously added
 					
 							foreach($_SESSION['cart_products'] as $prod) {
 								echo "<p>".$prod[prod_name]." x ".$prod[amount]." <span class='pull-right'>".$prod[price]."</span></p>";
@@ -203,7 +206,7 @@ if (isset($_POST['clearcart'])) {
 
 							?>
 						</div>
-						<?php
+						<?php // If the cart is empty
 							}
 							if (!isset($_SESSION['cart_products']) && count($_SESSION['cart_products']) < 1) {
 						?>
@@ -226,19 +229,9 @@ if (isset($_POST['clearcart'])) {
 				<div class="well">
 
 					<?php
-	if (!isset($_COOKIE['username'])) {
-	// Show form if not logged in
-?>
-<!--
-	<form action = "index.php" method="POST">
-	<input type="text" name="username">
-	<input type="password" name="password">
-	<input type="submit" value="Submit">
-	<label>Hash: </label>
-	<input type="checkbox" name="hasher" value="OFF">
-	<label>SQL: </label>
-	<input type="checkbox" name="sqler" value="OFF">
-	</form>-->
+						if (!isset($_COOKIE['username'])) {
+						// Show form if not logged in
+					?>
 
 					<form class="form login-form" id="form_id" method="post" name="loginform" action="index.php">
 						<h2>Sign in</h2>
@@ -250,7 +243,7 @@ if (isset($_POST['clearcart'])) {
 							<input id="Password" name="password" type="password" />
 
 							<label class="checkbox inline">
-								<input type="checkbox" id="RememberMe" value="option1"> Remember me
+								<input type="checkbox" id="RememberMe" name="rememberme" value="option1"> Remember me
 							</label>
 
 							<br /><br />
