@@ -4,24 +4,24 @@ if (!isset($_SESSION)) {
 }
 
 // Security measures
-if (!isset($_SESSION['sql'])) {
+/*if (!isset($_SESSION['sql'])) {
 	$_SESSION['sql'] = 'OFF';
 	header('Refresh:0');
 }
 
-/*$sqll = $_POST['sqlbutton'];
+$sqll = $_POST['sqlbutton'];
 if ($sqll == "ON") {
 	echo "test";
 }
 if ($sqll == "OFF") {
 	echo "tost";
-}*/
+}
 if (!isset($_POST['sqlbutton'])) {
 	echo "button not pushed";
 }
 if (isset($_POST['sqlbutton'])) {
 	echo "button pushed";
-}
+}*/
 
 $name = $_POST['username'];
 $pass = $_POST['password'];
@@ -157,7 +157,12 @@ if (isset($_POST['clearcart'])) {
 						echo "SQL Injection";
 						echo "<form method='post' action='index.php'>";
 						echo "<input type='hidden' name='sqlbutton'></input>";
-						echo "<button style='color:blue; float:right'>".$_SESSION['sql']."</button>";
+						if ($_SESSION['sql'] == 'ON') {
+							echo "<button style='color:blue; float:right'>ON</button>";
+						}
+						if ($_SESSION['sql'] == 'OFF') {
+							echo "<button style='color:blue;float:right;'>OFF</button>";
+						}
 						//echo "<input type='submit' value='".$_SESSION['sql']."' style='color:blue; float:right'>";
 						echo "</form>";
 						echo "XSS";
