@@ -3,7 +3,6 @@ Everything in the folder should be in MAMP/htdocs, except 'db'-folder, which sho
 - - - - - -
 
 TODO:
-* Webshop-functionality
 * Toggle buttons or checkboxes, for global variables to work in all forms
 * More OWASP-stuff?
 
@@ -43,3 +42,4 @@ $_SESSION['cart_products'] have
 [prod_id]
 [prod_name]
 [price]
+[amount]

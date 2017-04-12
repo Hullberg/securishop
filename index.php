@@ -4,24 +4,7 @@ if (!isset($_SESSION)) {
 }
 
 // Security measures
-/*if (!isset($_SESSION['sql'])) {
-	$_SESSION['sql'] = 'OFF';
-	header('Refresh:0');
-}
-
-$sqll = $_POST['sqlbutton'];
-if ($sqll == "ON") {
-	echo "test";
-}
-if ($sqll == "OFF") {
-	echo "tost";
-}
-if (!isset($_POST['sqlbutton'])) {
-	echo "button not pushed";
-}
-if (isset($_POST['sqlbutton'])) {
-	echo "button pushed";
-}*/
+// $_SESSION['sql'] for example. set to 'ON' / 'OFF'
 
 $name = $_POST['username'];
 $pass = $_POST['password'];
@@ -152,7 +135,7 @@ if (isset($_POST['clearcart'])) {
 						  </div>
 						</div>
 
-						<?php
+						<?php // This is where we should be able to toggle the buttons.
 						echo "<br><br>";
 						echo "SQL Injection";
 						echo "<form method='post' action='index.php'>";
